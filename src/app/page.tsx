@@ -17,6 +17,9 @@ export default function Home() {
   const [loading, setLoading] = useState(false);
   const [sessionId, setSessionId] = useState<string>("");
   const chatEndRef = useRef<HTMLDivElement | null>(null);
+  const inputRef = useRef<HTMLInputElement | null>(null);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState("");
 
   // Load from localStorage on mount
   useEffect(() => {
@@ -45,6 +48,29 @@ export default function Home() {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  // Auto-focus input after messages change
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [messages]);
+
+  // Toast auto-hide effect
+  useEffect(() => {
+    if (showToast) {
+      const timer = setTimeout(() => {
+        setShowToast(false);
+        setToastMessage("");
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [showToast]);
+
+  const showToastNotification = (message: string) => {
+    setToastMessage(message);
+    setShowToast(true);
+  };
+
   const handleClearChat = () => {
     setMessages([]);
     // Generate new session ID
@@ -65,14 +91,8 @@ export default function Home() {
       setInput("");
       setLoading(true);
       
-      // Show processing message
-      setMessages((msgs) => [
-        ...msgs,
-        { 
-          sender: "assistant", 
-          text: "Perfect! I'm generating your Business Plan now. This will take a couple of minutes - I'll have it back to you ASAP! 📋✨",
-        },
-      ]);
+      // Show toast notification instead of adding to chat
+      showToastNotification("Perfect! I'm generating your Business Plan now. This will take a couple of minutes - I'll have it back to you ASAP! 📋✨");
       setLoading(false);
       return;
     }
@@ -284,6 +304,7 @@ export default function Home() {
           </div>
           <div style={{ display: "flex", gap: 12 }}>
             <input
+              ref={inputRef}
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -362,6 +383,40 @@ export default function Home() {
           When you think we've discussed enough and are ready for your Business Plan, just type in <strong>READY</strong> (all caps, nothing else) and hit send, then give me a couple minutes and I'll have it back to you ASAP! 🚀
         </div>
       </main>
+
+      {/* Toast Notification */}
+      {showToast && (
+        <div style={{
+          position: "fixed",
+          top: "20px",
+          right: "20px",
+          background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
+          color: "#fff",
+          padding: "16px 24px",
+          borderRadius: "12px",
+          boxShadow: "0 8px 32px rgba(102, 126, 234, 0.3)",
+          zIndex: 1000,
+          maxWidth: "400px",
+          fontSize: "14px",
+          lineHeight: "1.5",
+          animation: "slideIn 0.3s ease-out",
+        }}>
+          {toastMessage}
+        </div>
+      )}
+
+      <style jsx>{`
+        @keyframes slideIn {
+          from {
+            transform: translateX(100%);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(0);
+            opacity: 1;
+          }
+        }
+      `}</style>
     </div>
   );
 }
