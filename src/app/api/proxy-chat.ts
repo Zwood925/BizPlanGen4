@@ -1,46 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 
-// Simple in-memory rate limiting (for production, use Redis or similar)
-const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
-
-const RATE_LIMIT_REQUESTS = 10; // Max requests per window
-const RATE_LIMIT_WINDOW_MS = 60000; // 1 minute window
-
-function getClientIP(req: NextRequest): string {
-  return req.headers.get('x-forwarded-for') || 
-         req.headers.get('x-real-ip') || 
-         'unknown';
-}
-
-function isRateLimited(clientIP: string): boolean {
-  const now = Date.now();
-  const clientData = rateLimitMap.get(clientIP);
-  
-  if (!clientData || now > clientData.resetTime) {
-    // Reset or initialize
-    rateLimitMap.set(clientIP, { count: 1, resetTime: now + RATE_LIMIT_WINDOW_MS });
-    return false;
-  }
-  
-  if (clientData.count >= RATE_LIMIT_REQUESTS) {
-    return true;
-  }
-  
-  clientData.count++;
-  return false;
-}
-
 export async function POST(req: NextRequest) {
   try {
-    // Rate limiting check
-    const clientIP = getClientIP(req);
-    if (isRateLimited(clientIP)) {
-      return NextResponse.json(
-        { error: 'Rate limit exceeded. Please wait before sending another message.' }, 
-        { status: 429 }
-      );
-    }
-
     const body = await req.json();
     
     // Validate input
@@ -126,4 +87,9 @@ export async function POST(req: NextRequest) {
     console.error('Proxy error:', err);
     return NextResponse.json({ error: 'Proxy error', details: String(err) }, { status: 500 });
   }
+}
+
+// Also export GET for testing
+export async function GET() {
+  return NextResponse.json({ message: 'Proxy chat API is working!' });
 } 
