@@ -234,9 +234,12 @@ export default function Home() {
                 border: "2px solid rgba(255, 255, 255, 0.3)",
                 fontSize: 16,
                 outline: "none",
-                background: "rgba(255, 255, 255, 0.9)",
+                background: "rgba(255, 255, 255, 0.95)",
+                color: "#333",
                 backdropFilter: "blur(10px)",
                 transition: "all 0.3s ease",
+                minHeight: "20px",
+                lineHeight: "1.5",
               }}
               disabled={loading}
               autoFocus
