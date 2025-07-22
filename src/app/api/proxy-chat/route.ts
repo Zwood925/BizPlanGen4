@@ -49,7 +49,7 @@ export async function POST(req: NextRequest) {
     }
     
     // Use environment variable for webhook URL in production
-    const webhookUrl = process.env.N8N_WEBHOOK_URL || 'https://mushroomagency.app.n8n.cloud/webhook/chat';
+    const webhookUrl = process.env.N8N_WEBHOOK_URL || 'http://localhost:5678/webhook-test/chat';
 
     const response = await fetch(webhookUrl, {
       method: 'POST',
