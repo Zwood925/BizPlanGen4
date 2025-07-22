@@ -45,8 +45,38 @@ export default function Home() {
     chatEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
+  const handleClearChat = () => {
+    setMessages([]);
+    // Generate new session ID
+    const newSessionId = `session-${Date.now()}`;
+    setSessionId(newSessionId);
+    if (typeof window !== "undefined") {
+      localStorage.setItem(SESSION_KEY, newSessionId);
+    }
+  };
+
   const handleSend = async () => {
     if (!input.trim() || loading) return;
+    
+    // Check for READY command
+    if (input.trim() === "READY") {
+      const userMessage = { sender: "user" as const, text: input };
+      setMessages((msgs) => [...msgs, userMessage]);
+      setInput("");
+      setLoading(true);
+      
+      // Show processing message
+      setMessages((msgs) => [
+        ...msgs,
+        { 
+          sender: "assistant", 
+          text: "Perfect! I'm generating your Business Plan now. This will take a couple of minutes - I'll have it back to you ASAP! 📋✨",
+        },
+      ]);
+      setLoading(false);
+      return;
+    }
+    
     const userMessage = { sender: "user" as const, text: input };
     setMessages((msgs) => [...msgs, userMessage]);
     setInput("");
@@ -149,6 +179,38 @@ export default function Home() {
             overflow: "hidden",
           }}
         >
+          {/* Clear Chat Button */}
+          {messages.length > 0 && (
+            <div style={{ 
+              display: "flex", 
+              justifyContent: "flex-end", 
+              marginBottom: 16 
+            }}>
+              <button
+                onClick={handleClearChat}
+                style={{
+                  padding: "8px 16px",
+                  borderRadius: 20,
+                  background: "rgba(255, 107, 107, 0.1)",
+                  color: "#ff6b6b",
+                  border: "1px solid rgba(255, 107, 107, 0.3)",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  transition: "all 0.3s ease",
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 107, 107, 0.2)";
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.background = "rgba(255, 107, 107, 0.1)";
+                }}
+              >
+                🗑️ Clear Chat
+              </button>
+            </div>
+          )}
+
           <div style={{ flex: 1, overflowY: "auto", marginBottom: 16 }}>
             {messages.length === 0 && (
               <div style={{ color: "#666", textAlign: "center", marginTop: 80, fontSize: 18 }}>
@@ -234,7 +296,7 @@ export default function Home() {
                 border: "2px solid rgba(255, 255, 255, 0.3)",
                 fontSize: 16,
                 outline: "none",
-                background: "rgba(255, 255, 255, 0.95)",
+                background: "rgba(255, 255, 255, 0.9)",
                 color: "#333",
                 backdropFilter: "blur(10px)",
                 transition: "all 0.3s ease",
@@ -279,6 +341,25 @@ export default function Home() {
               {loading ? "..." : "Send"}
             </button>
           </div>
+        </div>
+
+        {/* Instruction Note */}
+        <div style={{
+          marginTop: 24,
+          padding: "16px 24px",
+          background: "rgba(255, 255, 255, 0.9)",
+          borderRadius: 16,
+          border: "1px solid rgba(255, 255, 255, 0.3)",
+          backdropFilter: "blur(10px)",
+          maxWidth: 600,
+          margin: "24px auto 0",
+          textAlign: "center",
+          fontSize: 14,
+          color: "#666",
+          lineHeight: 1.5,
+        }}>
+          💡 <strong>Ready for your Business Plan?</strong><br />
+          When you think we've discussed enough and are ready for your Business Plan, just type in <strong>READY</strong> (all caps, nothing else) and hit send, then give me a couple minutes and I'll have it back to you ASAP! 🚀
         </div>
       </main>
     </div>
