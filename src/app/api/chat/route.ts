@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 
+export async function GET() {
+  return NextResponse.json({ message: 'Chat API is working!' });
+}
+
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
@@ -84,12 +88,7 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json(finalData, { status: response.status });
   } catch (err) {
-    console.error('Proxy error:', err);
-    return NextResponse.json({ error: 'Proxy error', details: String(err) }, { status: 500 });
+    console.error('API error:', err);
+    return NextResponse.json({ error: 'API error', details: String(err) }, { status: 500 });
   }
-}
-
-// Also export GET for testing
-export async function GET() {
-  return NextResponse.json({ message: 'Proxy chat API is working!' });
 } 

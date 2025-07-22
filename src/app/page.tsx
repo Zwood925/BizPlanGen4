@@ -52,7 +52,7 @@ export default function Home() {
     setInput("");
     setLoading(true);
     try {
-      const res = await fetch("/api/proxy-chat", {
+      const res = await fetch("/api/chat", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ message: userMessage.text, sessionId }),
